@@ -261,13 +261,46 @@ export class NocoDBClient {
         );
     }
 
+    /**
+     * Map view type number to the NocoDB v2 endpoint path segment.
+     * 1=Form, 2=Gallery, 3=Grid (default), 4=Kanban, 6=Calendar
+     */
+    private getViewPathSegment(type?: number): string {
+        switch (type) {
+            case 1:
+                return "forms";
+            case 2:
+                return "galleries";
+            case 3:
+                return "grids";
+            case 4:
+                return "kanbans";
+            case 6:
+                return "calendars";
+            default:
+                return "grids";
+        }
+    }
+
     async createView(
         tableId: string,
-        payload: { title: string; type?: number;[key: string]: unknown }
+        payload: { title: string; type?: number; fk_grp_col_id?: string;[key: string]: unknown }
     ): Promise<unknown> {
+        const segment = this.getViewPathSegment(payload.type);
         return this.request(
             "POST",
-            `/api/v2/meta/tables/${encodeURIComponent(tableId)}/views`,
+            `/api/v2/meta/tables/${encodeURIComponent(tableId)}/${segment}`,
+            payload
+        );
+    }
+
+    async updateView(
+        viewId: string,
+        payload: { title?: string;[key: string]: unknown }
+    ): Promise<unknown> {
+        return this.request(
+            "PATCH",
+            `/api/v2/meta/views/${encodeURIComponent(viewId)}`,
             payload
         );
     }

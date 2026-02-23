@@ -4,7 +4,7 @@ A standalone Model Context Protocol (MCP) server that provides full integration 
 
 ## Features
 
-**24 MCP tools** covering the full NocoDB API surface:
+**25 MCP tools** covering the full NocoDB API surface:
 
 | Category | Tools |
 |----------|-------|
@@ -12,7 +12,7 @@ A standalone Model Context Protocol (MCP) server that provides full integration 
 | **Sources** | list, create, update, delete |
 | **Tables** | list, get, create, update, delete |
 | **Fields** | list, create, update, delete |
-| **Views** | list, create, delete |
+| **Views** | list, create, update, delete |
 | **Records** | list (with filtering/sorting), create, update, delete |
 
 ## Prerequisites

@@ -400,18 +400,48 @@ server.tool(
 
 server.tool(
     "nocodb_create_view",
-    "Create a new view for a table (grid, gallery, form, kanban, calendar)",
+    "Create a new view for a table. NocoDB uses type-specific endpoints so the type determines the API path used.",
     {
         tableId: z.string().describe("The table ID"),
         title: z.string().describe("View title"),
         type: z
             .number()
             .optional()
-            .describe("View type: 3=Grid (default), 1=Form, 2=Gallery, 4=Kanban, 5=Calendar"),
+            .describe("View type: 1=Form, 2=Gallery, 3=Grid (default), 4=Kanban, 6=Calendar"),
+        fk_grp_col_id: z
+            .string()
+            .optional()
+            .describe("Foreign key to grouping column (required for Kanban, optional for Gallery)"),
     },
-    async ({ tableId, title, type }) => {
+    async ({ tableId, title, type, fk_grp_col_id }) => {
         try {
-            const result = await client.createView(tableId, { title, type });
+            const result = await client.createView(tableId, { title, type, fk_grp_col_id });
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+        } catch (error) {
+            return { content: [{ type: "text", text: `Error: ${(error as Error).message}` }], isError: true };
+        }
+    }
+);
+
+server.tool(
+    "nocodb_update_view",
+    "Update a view (rename, lock/unlock, reorder, etc.)",
+    {
+        viewId: z.string().describe("The view ID to update"),
+        title: z.string().optional().describe("New view title"),
+        payload: z.string().optional().describe("Optional JSON string of additional fields to update (e.g. lock_type, order, show_system_fields)"),
+    },
+    async ({ viewId, title, payload }) => {
+        try {
+            const data: Record<string, unknown> = {};
+            if (title !== undefined) {
+                data.title = title;
+            }
+            if (payload) {
+                const parsedPayload = JSON.parse(payload) as Record<string, unknown>;
+                Object.assign(data, parsedPayload);
+            }
+            const result = await client.updateView(viewId, data);
             return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
         } catch (error) {
             return { content: [{ type: "text", text: `Error: ${(error as Error).message}` }], isError: true };
