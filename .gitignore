@@ -2,3 +2,6 @@ node_modules/
 dist/
 .env
 *.tsbuildinfo
+
+.agent/
+.agents/
